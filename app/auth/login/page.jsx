@@ -1,22 +1,10 @@
 'use client'
 
-import { Suspense, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { getUserFriendlyError, logError } from '@/lib/utils/errorHandler'
-
-function VerifiedToast() {
-  const searchParams = useSearchParams()
-
-  useEffect(() => {
-    if (searchParams.get('verified') === 'true') {
-      toast.success('Email verified successfully! You can now login.')
-    }
-  }, [searchParams])
-
-  return null
-}
 
 export default function LoginPage() {
   const router = useRouter()
@@ -59,9 +47,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50 px-4 py-8 relative overflow-hidden">
-      <Suspense fallback={null}>
-        <VerifiedToast />
-      </Suspense>
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
@@ -110,15 +95,6 @@ export default function LoginPage() {
               placeholder="Enter your password"
               required
             />
-          </div>
-
-          <div className="text-right">
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-purple-600 hover:text-purple-700 font-medium font-inter transition-colors"
-            >
-              Forgot Password?
-            </Link>
           </div>
 
           <button

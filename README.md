@@ -404,4 +404,3 @@ Built with ❤️ using Next.js, Socket.io, and MongoDB
 ---
 
 **Happy Chatting! 💬**
-# GhostTalk

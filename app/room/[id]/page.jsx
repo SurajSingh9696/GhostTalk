@@ -472,11 +472,11 @@ export default function RoomPage() {
             No messages yet. Start the conversation!
           </div>
         ) : (
-          messages.map((msg) => {
+          messages.map((msg, index) => {
             // Render system messages (like room deleted)
             if (msg.isSystem || msg.type === 'system') {
               return (
-                <div key={msg._id} className="flex justify-center my-4">
+                <div key={msg._id || `system-${msg.timestamp}-${index}`} className="flex justify-center my-4">
                   <div className="bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded-full text-sm font-medium shadow-sm">
                     {msg.message}
                   </div>

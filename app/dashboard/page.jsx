@@ -380,7 +380,6 @@ export default function DashboardPage() {
                   onClick={() => {
                     setShowJoinRoom(false)
                     setRoomId('')
-                    setError('')
                   }}
                   className="btn-secondary flex-1 text-base sm:text-lg font-semibold"
                 >
@@ -500,7 +499,6 @@ export default function DashboardPage() {
                   type="button"
                   onClick={() => {
                     setShowProfile(false)
-                    setError('')
                   }}
                   className="btn-secondary flex-1 text-base sm:text-lg font-semibold"
                 >
