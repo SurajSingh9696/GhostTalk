@@ -22,6 +22,7 @@ const connectDB = async () => {
 const Message = require('./models/Message')
 const Media = require('./models/Media')
 const Room = require('./models/Room')
+const User = require('./models/User')
 
 const PORT = process.env.PORT || 3001
 
