@@ -283,15 +283,26 @@ httpServer.on('request', (req, res) => {
     req.on('data', chunk => {
       body += chunk.toString()
     })
-    req.on('end', () => {
+    req.on('end', async () => {
       try {
+        console.log('=== Backend: Received room-deleted notification ===')
         const { roomId, message } = JSON.parse(body)
+        console.log('Room ID:', roomId)
+        console.log('Message:', message)
         
         if (!roomId) {
+          console.error('Error: No roomId provided')
           res.writeHead(400, { 'Content-Type': 'application/json' })
           res.end(JSON.stringify({ error: 'roomId is required' }))
           return
         }
+        
+        // Get all sockets in the room
+        const socketsInRoom = await io.in(roomId).fetchSockets()
+        console.log(`Sockets currently in room ${roomId}: ${socketsInRoom.length}`)
+        socketsInRoom.forEach((socket, index) => {
+          console.log(`  Socket ${index + 1}: ${socket.id}`)
+        })
         
         // Emit room-deleted event to all users in the room
         io.to(roomId).emit('room-deleted', { 
@@ -299,10 +310,15 @@ httpServer.on('request', (req, res) => {
           roomId: roomId
         })
         
-        console.log(`✓ Emitted room-deleted event to room ${roomId}`)
+        console.log(`✓ Emitted room-deleted event to ${socketsInRoom.length} sockets in room ${roomId}`)
+        console.log('=== Backend: Room-deleted notification complete ===')
         
         res.writeHead(200, { 'Content-Type': 'application/json' })
-        res.end(JSON.stringify({ success: true, message: 'Event emitted' }))
+        res.end(JSON.stringify({ 
+          success: true, 
+          message: 'Event emitted',
+          socketsNotified: socketsInRoom.length
+        }))
       } catch (error) {
         console.error('Error processing room-deleted request:', error)
         res.writeHead(500, { 'Content-Type': 'application/json' })

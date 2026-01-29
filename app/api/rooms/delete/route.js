@@ -53,14 +53,20 @@ export async function DELETE(request) {
     console.log(`Room ${roomId} deleted from database`)
 
     // Notify participants via backend Socket.IO server
+    console.log('=== Room Deletion: Starting backend notification ===')
     try {
       // Use SOCKET_URL for server-side requests (not NEXT_PUBLIC_SOCKET_URL)
       const socketUrl = process.env.SOCKET_URL
+      console.log('SOCKET_URL:', socketUrl || 'NOT SET')
       
-      if (socketUrl) {
+      if (!socketUrl) {
+        console.error('⚠ SOCKET_URL not configured - participants will NOT be notified in real-time')
+        console.error('⚠ Set SOCKET_URL environment variable to your backend URL')
+      } else {
         // Make HTTP request to backend to emit the event
         const notifyUrl = `${socketUrl}/api/room-deleted`
-        console.log(`Notifying backend at: ${notifyUrl}`)
+        console.log(`Sending notification to: ${notifyUrl}`)
+        console.log(`Room ID: ${roomId}`)
         
         const response = await fetch(notifyUrl, {
           method: 'POST',
@@ -68,23 +74,25 @@ export async function DELETE(request) {
           body: JSON.stringify({
             roomId,
             message: 'This room has been deleted by the admin'
-          })
+          }),
+          signal: AbortSignal.timeout(5000) // 5 second timeout
         })
+        
+        console.log(`Backend response status: ${response.status}`)
         
         if (response.ok) {
           const result = await response.json()
-          console.log(`✓ Backend notified about room deletion: ${roomId}`, result)
+          console.log(`✓ Backend successfully notified:`, result)
         } else {
           const errorText = await response.text()
-          console.log(`⚠ Failed to notify backend: ${response.status} - ${errorText}`)
+          console.error(`⚠ Backend notification failed: ${response.status} - ${errorText}`)
         }
-      } else {
-        console.log('⚠ SOCKET_URL not configured - participants may not be notified in real-time')
-        console.log('⚠ Set SOCKET_URL environment variable to enable real-time notifications')
       }
     } catch (socketError) {
-      console.error('Socket notification error (non-critical):', socketError.message)
+      console.error('Socket notification error (non-critical):', socketError)
+      console.error('Error details:', socketError.message)
     }
+    console.log('=== Room Deletion: Backend notification complete ===')
 
     return NextResponse.json({
       success: true,
