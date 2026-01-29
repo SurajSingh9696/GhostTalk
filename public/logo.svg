@@ -1,0 +1,36 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#6EC6FF"/>
+      <stop offset="100%" stop-color="#E3F4FF"/>
+    </linearGradient>
+    <linearGradient id="orangeAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFB347"/>
+      <stop offset="100%" stop-color="#FF8C42"/>
+    </linearGradient>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#000" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect x="32" y="32" rx="96" ry="96" width="448" height="448" fill="url(#skyGradient)" filter="url(#softShadow)"/>
+
+  <!-- Chat bubble / ghost body -->
+  <path d="M256 124c-74 0-132 50-132 112 0 43 28 81 70 100l-10 44 44-26c9 2 18 3 28 3 74 0 132-50 132-112s-58-121-132-121z" fill="#FFFFFF"/>
+
+  <!-- Ghost tail -->
+  <path d="M188 360c12-18 36-22 52-8 10 8 24 8 34 0 16-14 40-10 52 8v28H188v-28z" fill="#FFFFFF"/>
+
+  <!-- Eyes -->
+  <circle cx="224" cy="232" r="10" fill="#4A90E2"/>
+  <circle cx="288" cy="232" r="10" fill="#4A90E2"/>
+
+  <!-- Smile (orange accent) -->
+  <path d="M230 260c18 14 34 14 52 0" fill="none" stroke="url(#orangeAccent)" stroke-width="6" stroke-linecap="round"/>
+
+  <!-- App Name Ghost Talk -->
+  <text x="256" y="420" text-anchor="middle" font-size="52" font-weight="700" font-family="Segoe UI, Inter, Arial, sans-serif" fill="#2B6CB0">
+    Ghost<tspan fill="url(#orangeAccent)">Talk</tspan>
+  </text>
+</svg>
