@@ -262,11 +262,48 @@ async function handleUserLeaveRoom(socket, roomId, userId, permanentLeave = fals
   socket.leave(roomId)
 }
 
-// Health check endpoint
+// HTTP endpoints
 httpServer.on('request', (req, res) => {
+  // Health check endpoint
   if (req.url === '/health' && req.method === 'GET') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }))
+    return
+  }
+  
+  // Room deleted notification endpoint
+  if (req.url === '/api/room-deleted' && req.method === 'POST') {
+    let body = ''
+    req.on('data', chunk => {
+      body += chunk.toString()
+    })
+    req.on('end', () => {
+      try {
+        const { roomId, message } = JSON.parse(body)
+        
+        if (!roomId) {
+          res.writeHead(400, { 'Content-Type': 'application/json' })
+          res.end(JSON.stringify({ error: 'roomId is required' }))
+          return
+        }
+        
+        // Emit room-deleted event to all users in the room
+        io.to(roomId).emit('room-deleted', { 
+          message: message || 'This room has been deleted',
+          roomId: roomId
+        })
+        
+        console.log(`✓ Emitted room-deleted event to room ${roomId}`)
+        
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ success: true, message: 'Event emitted' }))
+      } catch (error) {
+        console.error('Error processing room-deleted request:', error)
+        res.writeHead(500, { 'Content-Type': 'application/json' })
+        res.end(JSON.stringify({ error: 'Internal server error' }))
+      }
+    })
+    return
   }
 })
 

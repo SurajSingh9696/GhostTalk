@@ -27,8 +27,10 @@ export default function RoomPage() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [uploadingMedia, setUploadingMedia] = useState(false)
   const [mediaPreview, setMediaPreview] = useState(null)
+  const [showScrollButton, setShowScrollButton] = useState(false)
 
   const messagesEndRef = useRef(null)
+  const messagesContainerRef = useRef(null)
   const typingTimeoutRef = useRef(null)
   const fileInputRef = useRef(null)
   const isDeletingRoomRef = useRef(false)
@@ -52,8 +54,23 @@ export default function RoomPage() {
     scrollToBottom()
   }, [messages])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  // Track scroll position to show/hide scroll button
+  useEffect(() => {
+    const container = messagesContainerRef.current
+    if (!container) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container
+      const isNearBottom = scrollHeight - scrollTop - clientHeight < 100
+      setShowScrollButton(!isNearBottom)
+    }
+
+    container.addEventListener('scroll', handleScroll)
+    return () => container.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const scrollToBottom = (smooth = true) => {
+    messagesEndRef.current?.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' })
   }
 
   const checkAuthAndJoinRoom = async () => {
@@ -492,7 +509,7 @@ export default function RoomPage() {
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-6 space-y-4">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto scrollbar-hide px-4 py-6 space-y-4 relative">
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 mt-8">
             No messages yet. Start the conversation!
@@ -601,6 +618,20 @@ export default function RoomPage() {
             {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
           </div>
         )}
+        
+        {/* Scroll to bottom button */}
+        {showScrollButton && (
+          <button
+            onClick={() => scrollToBottom(true)}
+            className="fixed bottom-24 right-4 sm:right-8 bg-purple-600 hover:bg-purple-700 text-white p-3 rounded-full shadow-lg transition-all transform hover:scale-110 z-10 animate-fadeInUp"
+            aria-label="Scroll to bottom"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </button>
+        )}
+        
         <div ref={messagesEndRef} />
       </div>
 

@@ -52,24 +52,31 @@ export async function DELETE(request) {
     await Room.deleteOne({ roomId })
     console.log(`Room ${roomId} deleted from database`)
 
-    // Try to notify participants via Socket.io if available
-    // This is optional - room is already deleted from DB
+    // Notify participants via backend Socket.IO server
     try {
-      const io = getSocketServer()
+      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.SOCKET_URL
       
-      if (io) {
-        // Get all sockets in the room
-        const socketsInRoom = await io.in(roomId).fetchSockets()
-        console.log(`Sockets in room ${roomId}:`, socketsInRoom.length)
+      if (socketUrl) {
+        // Make HTTP request to backend to emit the event
+        const notifyUrl = `${socketUrl}/api/room-deleted`
+        console.log(`Notifying backend at: ${notifyUrl}`)
         
-        // Emit to room
-        io.to(roomId).emit('room-deleted', { 
-          message: 'This room has been deleted by the admin',
-          roomId: roomId
+        const response = await fetch(notifyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomId,
+            message: 'This room has been deleted by the admin'
+          })
         })
-        console.log(`✓ Emitted room-deleted event to room ${roomId}`)
+        
+        if (response.ok) {
+          console.log(`✓ Backend notified about room deletion: ${roomId}`)
+        } else {
+          console.log(`⚠ Failed to notify backend: ${response.status}`)
+        }
       } else {
-        console.log('⚠ Socket server not available - room deleted from DB but participants not notified')
+        console.log('⚠ SOCKET_URL not configured - participants may not be notified in real-time')
       }
     } catch (socketError) {
       console.error('Socket notification error (non-critical):', socketError)
