@@ -271,7 +271,7 @@ httpServer.on('request', (req, res) => {
 })
 
 // Start server
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Socket.IO backend server running on port ${PORT}`)
   console.log(`📡 Accepting connections from: ${process.env.FRONTEND_URL || 'http://localhost:3000'}`)
 })

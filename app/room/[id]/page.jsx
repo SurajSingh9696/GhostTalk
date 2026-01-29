@@ -445,9 +445,9 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-light">
+    <div className="h-screen flex flex-col bg-light overflow-hidden">
       {/* Header */}
-      <header className="bg-primary text-white shadow-md">
+      <header className="bg-primary text-white shadow-md flex-shrink-0">
         <div className="px-3 sm:px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
             <button
@@ -596,7 +596,7 @@ export default function RoomPage() {
             )
           })
         )}
-        {typingUsers.length > 0 && !isRoomDeleted && !useHttpFallback && (
+        {typingUsers.length > 0 && !isRoomDeleted && (
           <div className="text-sm text-gray-500 italic ml-2">
             {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
           </div>
@@ -605,7 +605,7 @@ export default function RoomPage() {
       </div>
 
       {/* Input */}
-      <div className="bg-white border-t border-gray-200 px-3 sm:px-4 py-3 relative">
+      <div className="bg-white border-t border-gray-200 px-3 sm:px-4 py-3 relative flex-shrink-0">
         {isRoomDeleted ? (
           <div className="bg-red-50 border border-red-200 text-red-700 px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-center">
             <p className="font-medium text-sm sm:text-base">🚫 This room has been deleted</p>
