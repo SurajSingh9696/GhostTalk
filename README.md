@@ -1,4 +1,4 @@
-# WhatsApp-Like Chat Application
+# GhostTalk - Temporary Real-Time Chat Application
 
 A full-featured real-time chat application with complete authentication, temporary chat rooms, and modern UI built with Next.js, Socket.io, and MongoDB.
 
@@ -15,15 +15,16 @@ A full-featured real-time chat application with complete authentication, tempora
 ### 💬 Real-Time Chat System
 - **Create Rooms** - Generate unique room IDs instantly
 - **Join Rooms** - Join using room ID
-- **Real-time Messaging** - Instant message delivery via Socket.io
+- **Real-time Messaging** - Instant message delivery via Socket.io with HTTP fallback
 - **Live Participants List** - See who's in the room
-- **Typing Indicators** - Know when someone is typing
+- **Typing Indicators** - Know when someone is typing (Socket.IO only)
 - **Admin Controls** - Room creator has delete permissions
 - **Auto-scroll** - Smooth scrolling to latest messages
+- **HTTP Fallback** - Works on serverless platforms (Vercel/Render) without WebSocket support
 
 ### 🗑️ Temporary Chat Logic (IMPORTANT)
 - **Automatic Cleanup** - When all users leave, room and messages are deleted
-- **Admin Delete** - Admin can manually delete room and all messages
+- **Admin Delete** - Admin can manually delete room and all messages (works with or without Socket.IO)
 - **No Persistence** - Zero chat history remains after room closure
 - **Real-time Notifications** - Users notified when room is deleted
 
@@ -41,10 +42,83 @@ A full-featured real-time chat application with complete authentication, tempora
 - **Language**: JavaScript
 - **Styling**: Tailwind CSS
 - **Database**: MongoDB
-- **Real-time**: Socket.io
+- **Real-time**: Socket.io (with HTTP polling fallback)
 - **Authentication**: bcrypt + JWT sessions
 - **Email**: Resend
 - **Date Handling**: date-fns
+
+## 📦 Deployment Modes
+
+This application supports two deployment modes:
+
+### 1. **Full Socket.IO Mode** (Recommended for VPS/dedicated servers)
+- Real-time bidirectional communication
+- Typing indicators
+- Instant message delivery
+- Lower latency
+- Requires custom Node.js server
+
+### 2. **HTTP Fallback Mode** (For Vercel/Render/serverless platforms)
+- Works without WebSocket support
+- Automatic polling every 2 seconds
+- All features work (except typing indicators)
+- Perfect for serverless deployments
+- Automatically activates when Socket.IO fails to connect
+
+## 🚀 Deployment Instructions
+
+### Deploying to Render (Recommended)
+
+1. **Push your code to GitHub**
+
+2. **Create a new Web Service on Render**
+   - Connect your GitHub repository
+   - Use the following settings:
+     - **Build Command**: `npm install && npm run build`
+     - **Start Command**: `npm start`
+     - **Environment**: Node
+
+3. **Add Environment Variables**:
+   ```env
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_random_secret_key_here
+   RESEND_API_KEY=your_resend_api_key
+   NEXT_PUBLIC_APP_URL=https://your-app.onrender.com
+   NEXT_PUBLIC_SOCKET_URL=https://your-app.onrender.com
+   NODE_ENV=production
+   ```
+
+4. **Deploy** - Render will automatically build and deploy your app
+
+### Deploying to Vercel
+
+1. **Push your code to GitHub**
+
+2. **Import project to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New" → "Project"
+   - Import your GitHub repository
+
+3. **Add Environment Variables**:
+   ```env
+   MONGODB_URI=your_mongodb_connection_string
+   JWT_SECRET=your_random_secret_key_here
+   RESEND_API_KEY=your_resend_api_key
+   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+   ```
+   
+   **Note**: On Vercel, the app will automatically use HTTP fallback mode since WebSockets are not supported. Don't set `NEXT_PUBLIC_SOCKET_URL`.
+
+4. **Deploy** - Vercel will automatically build and deploy
+
+### Environment Variables Explained
+
+- `MONGODB_URI` - Your MongoDB connection string (required)
+- `JWT_SECRET` - Secret key for JWT tokens (generate a random string)
+- `RESEND_API_KEY` - API key from Resend for email functionality (required for auth)
+- `NEXT_PUBLIC_APP_URL` - Your app's public URL (required for emails and redirects)
+- `NEXT_PUBLIC_SOCKET_URL` - Socket.IO server URL (optional, only for custom server deployments)
+- `NODE_ENV` - Set to 'production' for production deployments
 
 ## 📋 Prerequisites
 

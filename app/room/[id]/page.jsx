@@ -27,11 +27,15 @@ export default function RoomPage() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false)
   const [uploadingMedia, setUploadingMedia] = useState(false)
   const [mediaPreview, setMediaPreview] = useState(null)
+  const [useHttpFallback, setUseHttpFallback] = useState(false)
+  const [isPolling, setIsPolling] = useState(false)
 
   const messagesEndRef = useRef(null)
   const typingTimeoutRef = useRef(null)
   const fileInputRef = useRef(null)
   const isDeletingRoomRef = useRef(false)
+  const pollingIntervalRef = useRef(null)
+  const lastMessageTimestampRef = useRef(null)
 
   useEffect(() => {
     checkAuthAndJoinRoom()
@@ -44,6 +48,11 @@ export default function RoomPage() {
         socket.disconnect()
         setSocket(null)
         setSocketInitialized(false)
+      }
+      // Clear polling interval
+      if (pollingIntervalRef.current) {
+        clearInterval(pollingIntervalRef.current)
+        pollingIntervalRef.current = null
       }
     }
   }, [roomId]) // Only re-run if roomId changes
@@ -122,11 +131,29 @@ export default function RoomPage() {
 
     setSocketInitialized(true)
 
-    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3000'
-    const newSocket = io(socketUrl)
+    const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || window.location.origin
+    console.log('Attempting to connect to Socket.IO at:', socketUrl)
+    
+    const newSocket = io(socketUrl, {
+      transports: ['websocket', 'polling'],
+      timeout: 10000,
+    })
+
+    // Set a timeout to switch to HTTP fallback if socket doesn't connect
+    const connectionTimeout = setTimeout(() => {
+      if (!newSocket.connected) {
+        console.log('Socket connection timeout - switching to HTTP fallback')
+        newSocket.disconnect()
+        setSocketInitialized(false)
+        setUseHttpFallback(true)
+        startHttpPolling(userData)
+      }
+    }, 10000) // 10 second timeout
 
     newSocket.on('connect', () => {
+      clearTimeout(connectionTimeout)
       console.log('Socket connected:', newSocket.id)
+      setUseHttpFallback(false)
       newSocket.emit('join-room', {
         roomId,
         userId: userData.id,
@@ -135,9 +162,23 @@ export default function RoomPage() {
       console.log(`Emitted join-room for room: ${roomId}`)
     })
 
+    newSocket.on('connect_error', (error) => {
+      console.error('Socket connection error:', error)
+      clearTimeout(connectionTimeout)
+      // Switch to HTTP fallback
+      console.log('Switching to HTTP fallback due to connection error')
+      newSocket.disconnect()
+      setSocketInitialized(false)
+      setUseHttpFallback(true)
+      startHttpPolling(userData)
+    })
+
     // Use .once() for initial messages to prevent duplicates
     newSocket.once('room-messages', (msgs) => {
       setMessages(msgs)
+      if (msgs.length > 0) {
+        lastMessageTimestampRef.current = msgs[msgs.length - 1].timestamp
+      }
     })
 
     newSocket.on('new-message', (message) => {
@@ -145,7 +186,9 @@ export default function RoomPage() {
         // Prevent duplicate messages by checking if message already exists
         const exists = prev.some(m => m._id === message._id)
         if (exists) return prev
-        return [...prev, message]
+        const newMessages = [...prev, message]
+        lastMessageTimestampRef.current = message.timestamp
+        return newMessages
       })
     })
 
@@ -154,7 +197,9 @@ export default function RoomPage() {
         // Prevent duplicate messages
         const exists = prev.some(m => m._id === message._id)
         if (exists) return prev
-        return [...prev, message]
+        const newMessages = [...prev, message]
+        lastMessageTimestampRef.current = message.timestamp
+        return newMessages
       })
     })
 
@@ -236,6 +281,133 @@ export default function RoomPage() {
     setSocket(newSocket)
   }
 
+  // HTTP Fallback: Start polling for new messages
+  const startHttpPolling = async (userData) => {
+    if (isPolling || pollingIntervalRef.current) {
+      console.log('Polling already active')
+      return
+    }
+
+    console.log('Starting HTTP polling for messages')
+    setIsPolling(true)
+
+    // Initial fetch
+    await fetchMessages()
+
+    // Poll every 2 seconds
+    pollingIntervalRef.current = setInterval(async () => {
+      await fetchMessages()
+    }, 2000)
+  }
+
+  // Fetch messages via HTTP API
+  const fetchMessages = async () => {
+    try {
+      const url = new URL('/api/messages', window.location.origin)
+      url.searchParams.append('roomId', roomId)
+      if (lastMessageTimestampRef.current) {
+        url.searchParams.append('after', lastMessageTimestampRef.current)
+      }
+
+      const response = await fetch(url)
+      if (!response.ok) {
+        if (response.status === 404) {
+          // Room not found or deleted
+          setIsRoomDeleted(true)
+          clearInterval(pollingIntervalRef.current)
+          pollingIntervalRef.current = null
+          toast.error('Room not found or has been deleted')
+          setTimeout(() => router.push('/dashboard'), 2000)
+          return
+        }
+        throw new Error('Failed to fetch messages')
+      }
+
+      const data = await response.json()
+      
+      if (data.roomDeleted) {
+        setIsRoomDeleted(true)
+        clearInterval(pollingIntervalRef.current)
+        pollingIntervalRef.current = null
+        toast.error('This room has been deleted')
+        setTimeout(() => router.push('/dashboard'), 2000)
+        return
+      }
+
+      if (data.messages && data.messages.length > 0) {
+        setMessages((prev) => {
+          // Merge new messages, avoiding duplicates
+          const newMessages = [...prev]
+          data.messages.forEach(msg => {
+            if (!newMessages.some(m => m._id === msg._id)) {
+              newMessages.push(msg)
+            }
+          })
+          // Update last timestamp
+          const lastMsg = data.messages[data.messages.length - 1]
+          lastMessageTimestampRef.current = lastMsg.timestamp
+          return newMessages
+        })
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error)
+    }
+  }
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault()
+
+    if (!newMessage.trim() || isRoomDeleted) return
+
+    // Try Socket.IO first
+    if (socket && socket.connected && !useHttpFallback) {
+      socket.emit('send-message', {
+        roomId,
+        userId: user.id,
+        userName: user.name,
+        message: newMessage.trim(),
+      })
+
+      setNewMessage('')
+
+      // Stop typing indicator
+      socket.emit('typing', { roomId, userName: user.name, isTyping: false })
+    } else {
+      // Fallback to HTTP API
+      try {
+        const response = await fetch('/api/messages/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            roomId,
+            message: newMessage.trim(),
+          }),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Failed to send message')
+        }
+
+        // Add message to local state immediately
+        setMessages((prev) => {
+          // Check if message already exists (in case of fast polling)
+          if (prev.some(m => m._id === data.message._id)) {
+            return prev
+          }
+          lastMessageTimestampRef.current = data.message.timestamp
+          return [...prev, data.message]
+        })
+
+        setNewMessage('')
+      } catch (error) {
+        logError('Send Message', error)
+        toast.error(getUserFriendlyError(error, 'Failed to send message'))
+      }
+    }
+  }
+
   const handleSendMessage = (e) => {
     e.preventDefault()
 
@@ -246,12 +418,7 @@ export default function RoomPage() {
       userId: user.id,
       userName: user.name,
       message: newMessage.trim(),
-    })
-
-    setNewMessage('')
-
-    // Stop typing indicator
-    socket.emit('typing', { roomId, userName: user.name, isTyping: false })
+    })    }
   }
 
   const handleKeyDown = (e) => {
@@ -264,14 +431,14 @@ export default function RoomPage() {
   const handleTyping = (e) => {
     setNewMessage(e.target.value)
 
-    if (!socket) return
+    if (!socket || !socket.connected || useHttpFallback) return
 
     // Clear existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current)
     }
 
-    // Send typing indicator
+    // Send typing indicator (only works with Socket.IO)
     socket.emit('typing', { roomId, userName: user.name, isTyping: true })
 
     // Stop typing after 1 second of inactivity
@@ -433,7 +600,17 @@ export default function RoomPage() {
               </svg>
             </button>
             <div className="min-w-0 flex-1">
-              <h1 className="text-sm sm:text-lg font-bold truncate">Room: {roomId}</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-sm sm:text-lg font-bold truncate">Room: {roomId}</h1>
+                {useHttpFallback && (
+                  <span className="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                    </svg>
+                    HTTP Mode
+                  </span>
+                )}
+              </div>
               <p className="text-xs text-white/80">{participants.length} participants</p>
             </div>
           </div>
@@ -570,7 +747,7 @@ export default function RoomPage() {
             )
           })
         )}
-        {typingUsers.length > 0 && !isRoomDeleted && (
+        {typingUsers.length > 0 && !isRoomDeleted && !useHttpFallback && (
           <div className="text-sm text-gray-500 italic ml-2">
             {typingUsers.join(', ')} {typingUsers.length === 1 ? 'is' : 'are'} typing...
           </div>

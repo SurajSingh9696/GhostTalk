@@ -37,34 +37,43 @@ export async function DELETE(request) {
       )
     }
 
-    // Mark room as deleted (don't delete from DB yet)
-    room.isDeleted = true
-    room.deletedAt = new Date()
-    await room.save()
+    // Directly delete room and related data from database
+    // This ensures deletion works even without Socket.IO (Vercel/Render)
     
-    console.log(`Room ${roomId} marked as deleted`)
+    // Delete all media files associated with this room
+    await Media.deleteMany({ roomId })
+    console.log(`Deleted media for room ${roomId}`)
+    
+    // Delete all messages in this room
+    await Message.deleteMany({ roomId })
+    console.log(`Deleted messages for room ${roomId}`)
+    
+    // Delete the room itself
+    await Room.deleteOne({ roomId })
+    console.log(`Room ${roomId} deleted from database`)
 
-    // Notify all participants via Socket.io
-    const io = getSocketServer()
-    console.log('Socket IO instance:', io ? 'Available' : 'Not available')
-    
-    if (io) {
-      // Get all sockets in the room
-      const socketsInRoom = await io.in(roomId).fetchSockets()
-      console.log(`Sockets in room ${roomId}:`, socketsInRoom.length)
+    // Try to notify participants via Socket.io if available
+    // This is optional - room is already deleted from DB
+    try {
+      const io = getSocketServer()
       
-      // Emit to room
-      io.to(roomId).emit('room-deleted', { 
-        message: 'This room has been deleted by the admin',
-        roomId: roomId
-      })
-      console.log(`✓ Emitted room-deleted event to room ${roomId}`)
-    } else {
-      console.error('⚠ Socket server not available!')
+      if (io) {
+        // Get all sockets in the room
+        const socketsInRoom = await io.in(roomId).fetchSockets()
+        console.log(`Sockets in room ${roomId}:`, socketsInRoom.length)
+        
+        // Emit to room
+        io.to(roomId).emit('room-deleted', { 
+          message: 'This room has been deleted by the admin',
+          roomId: roomId
+        })
+        console.log(`✓ Emitted room-deleted event to room ${roomId}`)
+      } else {
+        console.log('⚠ Socket server not available - room deleted from DB but participants not notified')
+      }
+    } catch (socketError) {
+      console.error('Socket notification error (non-critical):', socketError)
     }
-
-    // Note: Room will be deleted from DB when all participants leave
-    // This is handled in the socket disconnect handler
 
     return NextResponse.json({
       success: true,
