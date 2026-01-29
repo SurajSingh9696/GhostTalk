@@ -408,19 +408,6 @@ export default function RoomPage() {
     }
   }
 
-  const handleSendMessage = (e) => {
-    e.preventDefault()
-
-    if (!newMessage.trim() || !socket || isRoomDeleted) return
-
-    socket.emit('send-message', {
-      roomId,
-      userId: user.id,
-      userName: user.name,
-      message: newMessage.trim(),
-    })    }
-  }
-
   const handleKeyDown = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
