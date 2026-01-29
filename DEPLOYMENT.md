@@ -1,113 +1,227 @@
 # GhostTalk Deployment Guide
 
-This guide covers deploying GhostTalk to various platforms and troubleshooting common issues.
+This guide covers deploying GhostTalk with its separated architecture: Frontend (Next.js) and Backend (Socket.IO).
+
+## 🏗️ Architecture
+
+GhostTalk now uses a separated architecture:
+
+- **Frontend**: Next.js app (deployed to Vercel/Render)
+- **Backend**: Socket.IO WebSocket server (deployed to Render)
+- **Database**: MongoDB Atlas
+
+This separation allows:
+- ✅ Deploy frontend to Vercel (fast, free CDN)
+- ✅ Deploy backend to Render (WebSocket support)
+- ✅ Scale each service independently
+- ✅ Better performance and reliability
 
 ## 🎯 Quick Deploy
 
-### Render (Recommended - Full Features)
+### Step 1: Deploy Backend (Socket.IO Server)
 
-**Why Render?** Supports custom Node.js servers, enabling full Socket.IO functionality with typing indicators and instant message delivery.
+**Deploy to Render first** - The frontend needs the backend URL.
 
-1. **Prepare Repository**
+1. **Create Web Service on Render**
+   - Go to [Render Dashboard](https://dashboard.render.com/)
+   - Click "New +" → "Web Service"
+   - Connect your GitHub repository
+   - **Important**: Set **Root Directory** to `backend`
+
+2. **Configure Service**
+   - **Name**: `ghosttalk-backend` (or your choice)
+   - **Region**: Choose closest to your users
+   - **Branch**: `main`
+   - **Root Directory**: `backend` ⚠️ **IMPORTANT**
+   - **Build Command**: `npm install`
+   - **Start Command**: `npm start`
+   - **Instance Type**: Free or higher
+
+3. **Environment Variables**
+   ```env
+   MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/ghosttalk
+   FRONTEND_URL=https://your-frontend-app.vercel.app
+   PORT=3001
+   ```
+   
+   **Note**: You'll update `FRONTEND_URL` after deploying frontend.
+
+4. **Deploy Backend**
+   - Click "Create Web Service"
+   - Wait for deployment to complete
+   - **Copy the backend URL** (e.g., `https://ghosttalk-backend.onrender.com`)
+
+### Step 2: Deploy Frontend (Next.js App)
+
+**Deploy to Vercel** - Fast, free, and perfect for Next.js.
+
+1. **Push Code to GitHub** (if not already done)
    ```bash
    git add .
    git commit -m "Ready for deployment"
    git push origin main
    ```
 
-2. **Create Web Service**
-   - Go to [Render Dashboard](https://dashboard.render.com/)
-   - Click "New +" → "Web Service"
-   - Connect your GitHub repository
-   - Configure:
-     - **Name**: `ghosttalk` (or your preferred name)
-     - **Region**: Choose closest to your users
-     - **Branch**: `main`
-     - **Build Command**: `npm install && npm run build`
-     - **Start Command**: `npm start`
-     - **Instance Type**: Free (or higher for better performance)
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New" → "Project"
+   - Import your GitHub repository
+   - Vercel will auto-detect Next.js
 
 3. **Environment Variables**
-   Add these in the Render dashboard:
-   ```env
-   MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/ghosttalk
-   JWT_SECRET=your_random_secret_minimum_32_chars
-   RESEND_API_KEY=re_your_resend_api_key
-   NEXT_PUBLIC_APP_URL=https://your-app-name.onrender.com
-   NEXT_PUBLIC_SOCKET_URL=https://your-app-name.onrender.com
-   NODE_ENV=production
-   ```
-
-4. **Deploy** - Click "Create Web Service"
-
-### Vercel (HTTP Mode - No WebSockets)
-
-**Why Vercel?** Great for quick deployments but doesn't support WebSockets. App automatically uses HTTP polling fallback.
-
-1. **Install Vercel CLI** (optional)
-   ```bash
-   npm i -g vercel
-   ```
-
-2. **Deploy**
-   - Via CLI: `vercel --prod`
-   - Via Dashboard: Import from GitHub at [vercel.com](https://vercel.com)
-
-3. **Environment Variables**
-   Add these in Vercel dashboard or `.env.production`:
+   Add these in Vercel dashboard:
    ```env
    MONGODB_URI=mongodb+srv://user:pass@cluster.mongodb.net/ghosttalk
    JWT_SECRET=your_random_secret_minimum_32_chars
    RESEND_API_KEY=re_your_resend_api_key
    NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+   NEXT_PUBLIC_SOCKET_URL=https://ghosttalk-backend.onrender.com
    ```
    
-   **⚠️ Important**: Do NOT set `NEXT_PUBLIC_SOCKET_URL` on Vercel. The app will automatically detect and use HTTP fallback mode.
+   **Important**: Use the backend URL from Step 1 for `NEXT_PUBLIC_SOCKET_URL`
 
-### Railway
+4. **Deploy Frontend**
+   - Click "Deploy"
+   - Wait for deployment
+   - **Copy the frontend URL**
 
-Similar to Render:
+5. **Update Backend Environment Variable**
+   - Go back to Render dashboard
+   - Update `FRONTEND_URL` to your Vercel URL
+   - Trigger a redeploy of the backend
 
-1. Connect GitHub repository
-2. Configure:
+### Alternative: Deploy Frontend to Render
+
+If you prefer to deploy both on Render:
+
+1. **Create Another Web Service**
+   - **Root Directory**: Leave empty (use root)
    - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm start`
-3. Add environment variables (same as Render)
-4. Deploy
+
+2. **Environment Variables** (same as Vercel above)
+
+3. Both services can run on Render's free tier
+
+### Step 3: Test Your Deployment
+
+### Step 3: Test Your Deployment
+
+1. **Check Backend Health**
+   ```bash
+   curl https://ghosttalk-backend.onrender.com/health
+   # Should return: {"status":"ok","timestamp":"..."}
+   ```
+
+2. **Visit Your Frontend**
+   - Go to your Vercel URL
+   - Sign up / Login
+   - Create a room
+   - Send messages
+   - Verify real-time updates work
+
+3. **Check Browser Console**
+   - Should see: "Socket connected: [id]"
+   - No WebSocket connection errors
+
+## 📋 Environment Variables
+
+### Backend (.env)
+```env
+MONGODB_URI=mongodb+srv://...        # Required: MongoDB connection
+FRONTEND_URL=https://app.vercel.app  # Required: Your frontend URL for CORS
+PORT=3001                            # Optional: Server port (default 3001)
+```
+
+### Frontend (.env.local)
+```env
+MONGODB_URI=mongodb+srv://...                      # Required: MongoDB connection
+JWT_SECRET=your_secret_key                         # Required: For auth tokens
+RESEND_API_KEY=re_xxx                             # Required: For emails
+NEXT_PUBLIC_APP_URL=https://app.vercel.app        # Required: Your app URL
+NEXT_PUBLIC_SOCKET_URL=https://backend.onrender.com # Required: Backend URL
+NODE_ENV=production                                # Optional
+```
 
 ## 🔧 Troubleshooting
+
+### Issue: Frontend can't connect to backend
+
+**Symptoms:**
+- "Switching to HTTP fallback" in console after 10 seconds
+- Messages work but with 2-3 second delay
+- No real-time message updates
+- Typing indicators don't work
+
+**Solutions:**
+
+1. **Verify NEXT_PUBLIC_SOCKET_URL is set**
+   ```bash
+   # In frontend .env.local or Vercel dashboard
+   NEXT_PUBLIC_SOCKET_URL=https://your-backend.onrender.com
+   ```
+   - Must include `https://`
+   - No trailing slash
+   - Must match your backend URL exactly
+   - Redeploy frontend after changing
+
+2. **Check Backend CORS Configuration**
+   - Backend `FRONTEND_URL` must match your frontend URL exactly
+   - Example: `https://your-app.vercel.app` (no trailing slash)
+   - Check backend logs: "Accepting connections from: ..."
+   - Redeploy backend after changing
+
+3. **Verify Backend is Running**
+   ```bash
+   curl https://your-backend.onrender.com/health
+   # Should return: {"status":"ok","timestamp":"..."}
+   ```
+
+4. **Check Browser Console**
+   ```javascript
+   // Should see:
+   "Attempting to connect to Socket.IO at: https://backend.onrender.com"
+   "Socket connected: [socket-id]"
+   
+   // If you see:
+   "Socket connection timeout - switching to HTTP fallback"
+   // → Backend not reachable or CORS issue
+   ```
+
+5. **Test Backend Directly**
+   - Open `https://your-backend.onrender.com/health` in browser
+   - Should see JSON response with status "ok"
+   - If connection refused → Backend not running
+   - If 404 → Wrong URL
 
 ### Issue: Messages Not Sending in Production
 
 **Symptoms:**
-- Messages don't appear when sent
-- Other users don't see your messages
-- Console shows Socket.IO connection errors
+- Messages typed but don't appear
+- Other users don't see messages
+- No errors in console
 
 **Solutions:**
 
-1. **Check if Socket.IO is Available**
-   - Open browser console (F12)
-   - Look for "Socket connected" message
-   - If you see "Switching to HTTP fallback", Socket.IO is not available
+1. **Check Socket.IO Connection**
+   - Open browser console
+   - Should see "Socket connected: [id]"
+   - If not connected, see "Frontend can't connect" above
 
-2. **For Vercel/Serverless Platforms**
-   - This is expected behavior
-   - The app should automatically switch to HTTP fallback
-   - Messages will work via API polling (2-second delay)
-   - Verify you see "HTTP Mode" badge in the UI
+2. **Try HTTP Fallback Mode**
+   - If Socket.IO fails, app should automatically use HTTP API
+   - Check Network tab for POST to `/api/messages/send`
+   - Messages should appear within 2-3 seconds
 
-3. **For Render/VPS Platforms**
-   - Verify `NEXT_PUBLIC_SOCKET_URL` is set correctly
-   - Should match your app URL: `https://your-app.onrender.com`
-   - No trailing slash
-   - Must be HTTPS in production
+3. **Verify MongoDB Connection**
+   - Check backend logs for MongoDB connection errors
+   - Verify `MONGODB_URI` is set correctly in both services
+   - Test connection by creating a room
 
-4. **Test HTTP Fallback Manually**
-   - Try sending a message
-   - Open Network tab in browser dev tools
-   - You should see POST requests to `/api/messages/send`
-   - New messages should appear within 2-3 seconds
+4. **Check Backend Logs**
+   - Go to Render Dashboard → Your Backend Service → Logs
+   - Look for errors when sending messages
+   - Should see: "Message sent in room [id] by [user]"
 
 ### Issue: Room Deletion Not Working
 

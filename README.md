@@ -38,87 +38,67 @@ A full-featured real-time chat application with complete authentication, tempora
 
 ## 🛠️ Tech Stack
 
-- **Framework**: Next.js 14 (App Router)
+- **Frontend**: Next.js 14 (App Router)
+- **Backend**: Node.js + Socket.IO (standalone server)
 - **Language**: JavaScript
 - **Styling**: Tailwind CSS
 - **Database**: MongoDB
-- **Real-time**: Socket.io (with HTTP polling fallback)
+- **Real-time**: Socket.IO (with HTTP polling fallback)
 - **Authentication**: bcrypt + JWT sessions
 - **Email**: Resend
 - **Date Handling**: date-fns
 
+## 🏗️ Architecture
+
+**Separated Services:**
+- **Frontend** (Next.js) → Deployed to Vercel
+- **Backend** (Socket.IO) → Deployed to Render
+- **Database** (MongoDB) → MongoDB Atlas
+
+This architecture provides:
+- ✅ WebSocket support on Render
+- ✅ Fast Next.js hosting on Vercel
+- ✅ Independent scaling
+- ✅ Better performance and reliability
+
 ## 📦 Deployment Modes
 
-This application supports two deployment modes:
+This application runs in real-time mode with the separated backend:
 
-### 1. **Full Socket.IO Mode** (Recommended for VPS/dedicated servers)
-- Real-time bidirectional communication
+### **Real-Time Mode** (Recommended)
+- WebSocket connection to standalone backend
+- Instant messaging (<100ms latency)
 - Typing indicators
-- Instant message delivery
-- Lower latency
-- Requires custom Node.js server
+- Live participant updates
+- Deployed: Frontend (Vercel) + Backend (Render)
 
-### 2. **HTTP Fallback Mode** (For Vercel/Render/serverless platforms)
-- Works without WebSocket support
-- Automatic polling every 2 seconds
+### **HTTP Fallback Mode** (Automatic)
+- Activates if WebSocket connection fails
+- Polling every 2 seconds
 - All features work (except typing indicators)
-- Perfect for serverless deployments
-- Automatically activates when Socket.IO fails to connect
+- Deployed: Frontend works standalone
 
 ## 🚀 Deployment Instructions
 
-### Deploying to Render (Recommended)
+### Quick Deploy (2 Services)
 
-1. **Push your code to GitHub**
+**1. Deploy Backend to Render**
+```bash
+cd backend
+# Follow backend/README.md
+```
 
-2. **Create a new Web Service on Render**
-   - Connect your GitHub repository
-   - Use the following settings:
-     - **Build Command**: `npm install && npm run build`
-     - **Start Command**: `npm start`
-     - **Environment**: Node
+**2. Deploy Frontend to Vercel**
+```bash
+# Set NEXT_PUBLIC_SOCKET_URL to your backend URL
+vercel --prod
+```
 
-3. **Add Environment Variables**:
-   ```env
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_random_secret_key_here
-   RESEND_API_KEY=your_resend_api_key
-   NEXT_PUBLIC_APP_URL=https://your-app.onrender.com
-   NEXT_PUBLIC_SOCKET_URL=https://your-app.onrender.com
-   NODE_ENV=production
-   ```
+**3. Update Backend CORS**
+- Set `FRONTEND_URL` to your Vercel URL
+- Redeploy backend
 
-4. **Deploy** - Render will automatically build and deploy your app
-
-### Deploying to Vercel
-
-1. **Push your code to GitHub**
-
-2. **Import project to Vercel**
-   - Go to [vercel.com](https://vercel.com)
-   - Click "Add New" → "Project"
-   - Import your GitHub repository
-
-3. **Add Environment Variables**:
-   ```env
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_random_secret_key_here
-   RESEND_API_KEY=your_resend_api_key
-   NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
-   ```
-   
-   **Note**: On Vercel, the app will automatically use HTTP fallback mode since WebSockets are not supported. Don't set `NEXT_PUBLIC_SOCKET_URL`.
-
-4. **Deploy** - Vercel will automatically build and deploy
-
-### Environment Variables Explained
-
-- `MONGODB_URI` - Your MongoDB connection string (required)
-- `JWT_SECRET` - Secret key for JWT tokens (generate a random string)
-- `RESEND_API_KEY` - API key from Resend for email functionality (required for auth)
-- `NEXT_PUBLIC_APP_URL` - Your app's public URL (required for emails and redirects)
-- `NEXT_PUBLIC_SOCKET_URL` - Socket.IO server URL (optional, only for custom server deployments)
-- `NODE_ENV` - Set to 'production' for production deployments
+See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
 
 ## 📋 Prerequisites
 
@@ -130,39 +110,78 @@ Before you begin, ensure you have:
 
 ## 🚀 Installation & Setup
 
-### 1. Install Dependencies
+### Local Development (2 Terminals)
+
+You'll need to run both frontend and backend locally.
+
+#### Terminal 1: Backend
 
 ```bash
-cd 03-whatsapp-chat
+cd backend
 npm install
+cp .env.example .env
+# Edit .env with your MongoDB URI
+npm start
 ```
 
-### 2. Configure Environment Variables
+Backend runs on `http://localhost:3001`
 
-Edit the `.env.local` file with your actual credentials:
+#### Terminal 2: Frontend
 
+```bash
+npm install
+cp .env.example .env.local
+# Edit .env.local with your credentials
+npm run dev
+```
+
+Frontend runs on `http://localhost:3000`
+
+### Environment Variables
+
+#### Backend (.env)
+```env
+MONGODB_URI=mongodb://localhost:27017/ghosttalk
+# Or MongoDB Atlas: mongodb+srv://user:pass@cluster.mongodb.net/ghosttalk
+
+FRONTEND_URL=http://localhost:3000
+PORT=3001
+```
+
+#### Frontend (.env.local)
 ```env
 # MongoDB Connection
-MONGODB_URI=mongodb://localhost:27017/whatsapp-chat
-# Or use MongoDB Atlas:
-# MONGODB_URI=mongodb+srv://username:password@cluster.mongodb.net/whatsapp-chat
+MONGODB_URI=mongodb://localhost:27017/ghosttalk
 
 # Resend API Key (Get from https://resend.com)
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-# Email sender (must be verified in Resend)
-EMAIL_FROM=noreply@yourdomain.com
-# For testing, you can use: onboarding@resend.dev
+# JWT Secret (change to a random string)
+JWT_SECRET=your-super-secret-jwt-key-minimum-32-characters
 
-# JWT Secret (change this to a random string)
-JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-
-# App URL
+# App URLs
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-
-# Socket.io URL
-NEXT_PUBLIC_SOCKET_URL=http://localhost:3000
+NEXT_PUBLIC_SOCKET_URL=http://localhost:3001
 ```
+
+### Quick Start Script
+
+Use the provided scripts to start both servers at once:
+
+**Windows:**
+```bash
+dev.bat
+```
+
+**Mac/Linux:**
+```bash
+chmod +x dev.sh
+./dev.sh
+```
+
+Or manually start each service:
+- Backend: `cd backend && npm start`
+- Frontend: `npm run dev`
 
 ### 3. Get a Resend API Key
 
