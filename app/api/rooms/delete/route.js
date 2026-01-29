@@ -54,7 +54,8 @@ export async function DELETE(request) {
 
     // Notify participants via backend Socket.IO server
     try {
-      const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || process.env.SOCKET_URL
+      // Use SOCKET_URL for server-side requests (not NEXT_PUBLIC_SOCKET_URL)
+      const socketUrl = process.env.SOCKET_URL
       
       if (socketUrl) {
         // Make HTTP request to backend to emit the event
@@ -71,15 +72,18 @@ export async function DELETE(request) {
         })
         
         if (response.ok) {
-          console.log(`✓ Backend notified about room deletion: ${roomId}`)
+          const result = await response.json()
+          console.log(`✓ Backend notified about room deletion: ${roomId}`, result)
         } else {
-          console.log(`⚠ Failed to notify backend: ${response.status}`)
+          const errorText = await response.text()
+          console.log(`⚠ Failed to notify backend: ${response.status} - ${errorText}`)
         }
       } else {
         console.log('⚠ SOCKET_URL not configured - participants may not be notified in real-time')
+        console.log('⚠ Set SOCKET_URL environment variable to enable real-time notifications')
       }
     } catch (socketError) {
-      console.error('Socket notification error (non-critical):', socketError)
+      console.error('Socket notification error (non-critical):', socketError.message)
     }
 
     return NextResponse.json({

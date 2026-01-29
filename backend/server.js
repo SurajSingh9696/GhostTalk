@@ -273,6 +273,12 @@ httpServer.on('request', (req, res) => {
   
   // Room deleted notification endpoint
   if (req.url === '/api/room-deleted' && req.method === 'POST') {
+    // Set CORS headers
+    const origin = req.headers.origin || process.env.FRONTEND_URL
+    res.setHeader('Access-Control-Allow-Origin', origin || '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    
     let body = ''
     req.on('data', chunk => {
       body += chunk.toString()
@@ -303,6 +309,17 @@ httpServer.on('request', (req, res) => {
         res.end(JSON.stringify({ error: 'Internal server error' }))
       }
     })
+    return
+  }
+  
+  // Handle OPTIONS preflight for CORS
+  if (req.url === '/api/room-deleted' && req.method === 'OPTIONS') {
+    const origin = req.headers.origin || process.env.FRONTEND_URL
+    res.setHeader('Access-Control-Allow-Origin', origin || '*')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.writeHead(204)
+    res.end()
     return
   }
 })
