@@ -216,7 +216,40 @@ export default function RoomPage() {
     })
 
     newSocket.on('room-deleted', ({ message }) => {
-      console.log('=== Frontend: room-deleted event received ===')<parameter name="roomId">roomId
+      console.log('=== Frontend: room-deleted event received ===')
+      console.log('Room:', roomId)
+      console.log('Message:', message)
+      console.log('isDeletingRoom:', isDeletingRoomRef.current)
+      
+      setIsRoomDeleted(true)
+      
+      // Add system message to chat
+      const systemMessage = {
+        _id: 'system-' + Date.now(),
+        type: 'system',
+        message: '🚫 Room has been deleted by admin',
+        timestamp: new Date(),
+        isSystem: true,
+      }
+      setMessages((prev) => [...prev, systemMessage])
+      
+      // Skip notification if this user initiated the deletion (admin)
+      if (isDeletingRoomRef.current) {
+        console.log('Skipping notification - this user deleted the room')
+        return
+      }
+      
+      // Show toast and redirect for participants only
+      toast.error('This room has been deleted by the admin. Redirecting...', { duration: 3000 })
+      
+      // Redirect participants after 3 seconds
+      setTimeout(() => {
+        if (newSocket) {
+          newSocket.emit('leave-room', { roomId, userId: userData.id })
+          newSocket.disconnect()
+        }
+        router.push('/dashboard')
+      }, 3000)
     })
 
     newSocket.on('error', ({ message }) => {
