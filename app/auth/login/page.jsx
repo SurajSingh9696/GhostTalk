@@ -46,11 +46,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50 px-4 py-8 relative overflow-hidden">
-      {/* Animated Background */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-white to-teal-50 px-4 py-8 relative overflow-hidden">
+      {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-        <div className="absolute bottom-20 right-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow delay-200"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-10 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow delay-200"></div>
       </div>
 
       <div className="card-glass max-w-md w-full relative z-10 animate-fadeInUp">
@@ -124,7 +124,7 @@ export default function LoginPage() {
         <div className="mt-8 text-center">
           <p className="text-gray-600 font-inter">
             Don't have an account?{' '}
-            <Link href="/auth/signup" className="text-purple-600 hover:text-purple-700 font-semibold transition-colors">
+            <Link href="/auth/signup" className="text-cyan-600 hover:text-cyan-700 font-semibold transition-colors">
               Sign Up
             </Link>
           </p>

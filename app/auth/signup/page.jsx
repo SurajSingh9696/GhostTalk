@@ -65,11 +65,11 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50 px-4 py-8 relative overflow-hidden">
-      {/* Animated Background */}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-white to-teal-50 px-4 py-8 relative overflow-hidden">
+      {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
-        <div className="absolute bottom-20 left-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow delay-200"></div>
+        <div className="absolute top-20 right-10 w-72 h-72 bg-cyan-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow"></div>
+        <div className="absolute bottom-20 left-10 w-72 h-72 bg-teal-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse-slow delay-200"></div>
       </div>
 
       <div className="card-glass max-w-md w-full relative z-10 animate-fadeInUp">
@@ -118,7 +118,7 @@ export default function SignupPage() {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3 font-inter flex items-center gap-2">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
               Password
@@ -136,7 +136,7 @@ export default function SignupPage() {
 
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-3 font-inter flex items-center gap-2">
-              <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Confirm Password
@@ -179,7 +179,7 @@ export default function SignupPage() {
         <div className="mt-8 text-center">
           <p className="text-gray-600 font-inter">
             Already have an account?{' '}
-            <Link href="/auth/login" className="text-purple-600 hover:text-purple-700 font-semibold transition-colors">
+            <Link href="/auth/login" className="text-cyan-600 hover:text-cyan-700 font-semibold transition-colors">
               Login
             </Link>
           </p>

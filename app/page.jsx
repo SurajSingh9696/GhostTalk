@@ -41,9 +41,9 @@ export default function HomePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-white to-teal-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <div className="text-2xl font-bold gradient-text animate-pulse">Loading...</div>
         </div>
       </div>
@@ -73,26 +73,26 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center mb-16 sm:mb-20 animate-fadeInDown">
-            <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-purple-600/10 to-indigo-600/10 rounded-full border border-purple-200 animate-fadeIn">
-              <span className="text-purple-700 font-semibold text-sm">✨ Real-time Messaging Platform</span>
+            <div className="inline-block mb-4 px-4 py-2 bg-gradient-to-r from-cyan-600/10 to-teal-600/10 rounded-full border border-cyan-200 animate-fadeIn">
+              <span className="text-cyan-700 font-semibold text-sm">✨ Real-time Messaging Platform</span>
             </div>
             <h1 className="text-5xl sm:text-7xl font-bold text-gray-900 mb-6 leading-tight">
               Welcome to{' '}
-              <span className="gradient-text animate-gradient-x bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600">
+              <span className="gradient-text animate-gradient-x bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-600">
                 GhostTalk
               </span>
             </h1>
             <p className="text-lg sm:text-2xl text-gray-600 max-w-3xl mx-auto font-inter leading-relaxed">
               Connect instantly with friends and colleagues in temporary chat rooms. 
               <br className="hidden sm:block" />
-              <span className="font-semibold text-purple-600">Simple, secure, and temporary</span> messaging for everyone.
+              <span className="font-semibold text-cyan-600">Simple, secure, and temporary</span> messaging for everyone.
             </p>
           </div>
 
           {/* Feature Cards */}
           <div className="grid sm:grid-cols-3 gap-6 sm:gap-8 mb-16 sm:mb-20">
             <div className="card-glass hover-lift hover-glow animate-fadeInUp group">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <svg className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
@@ -149,7 +149,7 @@ export default function HomePage() {
               <div className="flex flex-col items-center animate-slideInLeft">
                 <div className="relative mb-6">
                   <img src="/logo.svg" alt="GhostTalk Logo" className="w-20 h-20 mx-auto mb-6 animate-bounce-slow" />
-                  <div className="absolute -inset-2 bg-purple-200 rounded-3xl -z-10 blur-lg opacity-50"></div>
+                  <div className="absolute -inset-2 bg-cyan-200 rounded-3xl -z-10 blur-lg opacity-50"></div>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3 font-space-grotesk">Sign Up</h3>
                 <p className="text-gray-600 font-inter">Create your account instantly with email and password</p>
@@ -157,10 +157,10 @@ export default function HomePage() {
               
               <div className="flex flex-col items-center animate-slideInLeft delay-200">
                 <div className="relative mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-2xl hover:scale-110 transition-transform duration-300">
+                  <div className="w-20 h-20 bg-gradient-to-br from-teal-500 to-cyan-600 text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-2xl hover:scale-110 transition-transform duration-300">
                     2
                   </div>
-                  <div className="absolute -inset-2 bg-pink-200 rounded-3xl -z-10 blur-lg opacity-50"></div>
+                  <div className="absolute -inset-2 bg-teal-200 rounded-3xl -z-10 blur-lg opacity-50"></div>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 mb-3 font-space-grotesk">Create or Join</h3>
                 <p className="text-gray-600 font-inter">Start a new room or join an existing one with a room ID</p>
@@ -168,7 +168,7 @@ export default function HomePage() {
               
               <div className="flex flex-col items-center animate-slideInLeft delay-400">
                 <div className="relative mb-6">
-                  <div className="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-500 text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-2xl hover:scale-110 transition-transform duration-300">
+                  <div className="w-20 h-20 bg-gradient-to-br from-cyan-600 to-teal-600 text-white rounded-3xl flex items-center justify-center text-3xl font-bold shadow-2xl hover:scale-110 transition-transform duration-300">
                     3
                   </div>
                   <div className="absolute -inset-2 bg-cyan-200 rounded-3xl -z-10 blur-lg opacity-50"></div>

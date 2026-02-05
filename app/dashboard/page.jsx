@@ -220,9 +220,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-indigo-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-cyan-50 via-white to-teal-50">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-purple-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <div className="w-16 h-16 border-4 border-cyan-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <div className="text-2xl font-bold gradient-text animate-pulse">Loading...</div>
         </div>
       </div>
@@ -230,11 +230,11 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-indigo-50 relative overflow-hidden">
-      {/* Animated Background */}
+    <div className="min-h-screen bg-gradient-to-br from-cyan-50 via-white to-teal-50 relative overflow-hidden">
+      {/* Animated background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"></div>
-        <div className="absolute bottom-20 left-20 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow delay-200"></div>
+        <div className="absolute top-20 right-20 w-96 h-96 bg-cyan-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow"></div>
+        <div className="absolute bottom-20 left-20 w-96 h-96 bg-teal-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-pulse-slow delay-200"></div>
       </div>
 
       {/* Header */}
@@ -245,15 +245,15 @@ export default function DashboardPage() {
             <h1 className="text-xl sm:text-3xl font-bold gradient-text font-space-grotesk">GhostTalk</h1>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 animate-slideInRight">
-            <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-purple-100 to-indigo-100 rounded-xl">
+            <div className="hidden sm:flex items-center gap-3 px-4 py-2 bg-gradient-to-r from-cyan-100 to-teal-100 rounded-xl">
               {user?.avatar && (
                 <img src={user.avatar} alt="Avatar" className="w-8 h-8 rounded-full border-2 border-white shadow-sm" />
               )}
-              <span className="text-sm font-medium text-gray-700">Hello, <span className="font-bold text-purple-600">{user?.name}</span></span>
+              <span className="text-sm font-medium text-gray-700">Hello, <span className="font-bold text-cyan-600">{user?.name}</span></span>
             </div>
             <button
               onClick={() => setShowProfile(true)}
-              className="btn-glass text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 text-white border-none hover:from-purple-700 hover:to-indigo-700"
+              className="btn-glass text-xs sm:text-sm px-4 sm:px-5 py-2 sm:py-2.5 font-semibold bg-gradient-to-r from-cyan-600 to-teal-600 text-white border-none hover:from-cyan-700 hover:to-teal-700"
             >
               <svg className="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -289,12 +289,12 @@ export default function DashboardPage() {
           <div className="card-glass hover-lift hover-glow group animate-fadeInUp flex flex-col">
             <div className="text-center flex-1 flex flex-col">
               <div className="relative mb-6">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-purple-500 to-indigo-500 rounded-3xl flex items-center justify-center mx-auto shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-cyan-500 to-teal-500 rounded-3xl flex items-center justify-center mx-auto shadow-2xl group-hover:scale-110 transition-transform duration-300">
                   <svg className="w-10 h-10 sm:w-12 sm:h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
                   </svg>
                 </div>
-                <div className="absolute -inset-3 bg-purple-200 rounded-3xl -z-10 blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+                <div className="absolute -inset-3 bg-cyan-200 rounded-3xl -z-10 blur-xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
               </div>
               <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-3 font-space-grotesk">Create Room</h3>
               <p className="text-base sm:text-lg text-gray-600 mb-6 sm:mb-8 font-inter flex-1">
@@ -413,9 +413,9 @@ export default function DashboardPage() {
             </div>
             <form onSubmit={handleUpdateProfile} className="space-y-6">
               {/* Avatar Selection */}
-              <div className="bg-gradient-to-br from-purple-50 to-indigo-50 p-4 sm:p-6 rounded-2xl">
+              <div className="bg-gradient-to-br from-cyan-50 to-teal-50 p-4 sm:p-6 rounded-2xl">
                 <label className="block text-sm font-semibold text-gray-700 mb-3 sm:mb-4 font-inter flex items-center gap-2">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   Choose Your Avatar
@@ -431,7 +431,7 @@ export default function DashboardPage() {
                       }}
                       className={`relative rounded-2xl overflow-hidden transition-all transform hover:scale-110 ${
                         selectedAvatar === avatar || profileData.avatar === avatar
-                          ? 'ring-4 ring-purple-600 shadow-2xl scale-110 shadow-purple-500/50'
+                          ? 'ring-4 ring-cyan-600 shadow-2xl scale-110 shadow-cyan-500/50'
                           : 'hover:ring-2 hover:ring-gray-300 shadow-lg'
                       }`}
                     >
@@ -448,7 +448,7 @@ export default function DashboardPage() {
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3 font-inter flex items-center gap-2">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   Name
@@ -464,7 +464,7 @@ export default function DashboardPage() {
               </div>
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-3 font-inter flex items-center gap-2">
-                  <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
                   Custom Avatar URL (optional)
@@ -518,10 +518,10 @@ export default function DashboardPage() {
               <button
                 type="button"
                 onClick={() => setShowPasswordSection(!showPasswordSection)}
-                className="w-full flex items-center justify-between text-left px-4 py-3 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl hover:from-indigo-100 hover:to-purple-100 transition"
+                className="w-full flex items-center justify-between text-left px-4 py-3 bg-gradient-to-r from-cyan-50 to-teal-50 rounded-xl hover:from-cyan-100 hover:to-teal-100 transition"
               >
                 <div className="flex items-center gap-3">
-                  <svg className="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                   <span className="font-semibold text-gray-700">Change Password</span>
